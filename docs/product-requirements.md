@@ -111,16 +111,21 @@ Create a comprehensive maritime SAAS platform that enables shipping companies to
 **Features:**
 
 - Global weather forecasts
+- Short-term (48 hour) and long-term (10 day) weather predictions
+- Marine-specific weather forecasting (sea state, wave height, currents)
 - Route-specific weather conditions
 - Weather alerts and warnings
 - Historical weather data
 - Weather overlay on maps
+- Severe weather event predictions and notifications
 
 **Technical Requirements:**
 
 - Integration with weather data providers
 - Weather visualization
 - Alert system
+- Weather prediction models
+- Historical weather data storage and analysis
 
 ### 3.6 Market Intelligence
 
