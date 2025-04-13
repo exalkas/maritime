@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  # Frontend Next.js application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - core-backend
+      - ais-service
+
+  # Core backend service
+  core-backend:
+    build:
+      context: ./backend/core
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/core:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongo:27017/maritime-saas
+    depends_on:
+      - mongo
+
+  # AIS service
+  ais-service:
+    build:
+      context: ./backend/modules/ais
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./backend/modules/ais:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - MONGODB_URI=mongodb://mongo:27017/maritime-saas-ais
+    depends_on:
+      - mongo
+
+  # MongoDB database
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=maritime-saas
+
+volumes:
+  mongo-data:
