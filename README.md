@@ -1,114 +1,93 @@
-# Maritime SAAS Platform
+# Maritime SaaS Platform
 
-A comprehensive maritime software-as-a-service platform that helps shipping companies optimize operations, track assets, and make data-driven decisions.
+An early maritime operations prototype for exploring vessel positions on an interactive map. It is intended as a starting point for shipping dashboards and future AIS-provider integration.
 
-## Project Structure
+**Current data is synthetic.** The AIS service generates vessel records around major ports, and the frontend can fall back to generated data when the API is unavailable. This repository does not currently connect to a live AIS provider. Dashboard counts and status labels are demonstration content, and the vessel-details page is not implemented.
 
-```
-maritime-saas/
-├── frontend/             # Next.js application for the main web app
-├── admin/                # Admin portal (to be implemented)
-├── backend/
-│   ├── core/             # Core backend service (auth, users, billing)
-│   └── modules/
-│       ├── ais/          # AIS tracking service
-│       └── ... other modules to be implemented
-├── infrastructure/       # Infrastructure configurations
-├── shared/               # Shared utilities and types
-├── landing/              # Marketing website (to be implemented)
-└── docs/                 # Documentation
-```
+## What's included
 
-## Quick Start
+- A Next.js and React frontend with TypeScript, Leaflet, React Leaflet, and OpenStreetMap tiles.
+- An Express core-service scaffold with a health response and a sample vessel endpoint.
+- A separate Express AIS service with synthetic vessel-list and vessel-detail endpoints.
+- Docker Compose configuration with a MongoDB development service. The current demo endpoints generate data rather than reading MongoDB.
+- Product plans and AIS-provider research in `docs/`. Administration, billing, authentication, and live tracking remain planned work.
 
-### Using Docker Compose (Recommended)
+## Run locally
 
-The easiest way to start all services together is using Docker Compose:
+Use Node.js 20+ and npm. Docker with Compose is optional for running the complete development stack.
 
-```bash
-docker-compose up
+### Docker Compose
+
+From the repository root:
+
+```sh
+docker compose up --build
 ```
 
-This will start:
+Services are available at:
 
-- Frontend on http://localhost:3000
-- Core backend on http://localhost:3001
-- AIS service on http://localhost:3002
-- MongoDB database
+| Service | Address |
+| --- | --- |
+| Frontend | http://localhost:3000 |
+| Core API | http://localhost:3001 |
+| AIS API | http://localhost:3002 |
+| Local MongoDB | localhost:27017 |
 
-### Manual Setup
+This is a local development configuration with exposed ports, development servers, and an unauthenticated MongoDB instance. Production deployment requires separate security and service configuration.
 
-If you prefer to run services individually:
+### Without Docker
 
-#### Frontend (Next.js App)
+In one terminal:
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-The frontend will be available at http://localhost:3000
-
-#### Core Backend Service
-
-```bash
+```sh
 cd backend/core
-npm install
+npm ci
+```
+
+Copy `.env.example` to `.env`, then run `npm run dev`. In a second terminal, repeat those commands from `backend/modules/ais/`.
+
+In a third terminal:
+
+```sh
+cd frontend
+npm ci
 npm run dev
 ```
 
-The core service will be available at http://localhost:3001
+The frontend currently uses the AIS API at `http://localhost:3002`. It requests vessel updates every 30 seconds. Without a reachable API it uses synthetic fallback data. OpenStreetMap map tiles require an internet connection.
 
-#### AIS Module Service
+### API examples
 
-```bash
-cd backend/modules/ais
-npm install
-npm run dev
-```
+- `GET http://localhost:3001/` — core service status.
+- `GET http://localhost:3001/api/ais/vessels` — five randomly generated vessel records.
+- `GET http://localhost:3002/` — AIS service status.
+- `GET http://localhost:3002/api/vessels` — 25 synthetic vessel records.
+- `GET http://localhost:3002/api/vessels/123456789` — synthetic details for the supplied identifier.
 
-The AIS service will be available at http://localhost:3002
+Generated identities and positions are not stable between requests; this is demo data, not a vessel-position record or navigation tool.
 
-## Features (Current MVP)
+## Repository layout
 
-- **AIS Ship Tracking**:
-  - Real-time vessel position monitoring
-  - Visualize vessels on an interactive map
-  - Basic vessel details
+| Folder | Purpose |
+| --- | --- |
+| `frontend/` | Map dashboard |
+| `backend/core/` | Core-service scaffold |
+| `backend/modules/ais/` | Synthetic AIS endpoints |
+| `docs/` | Product plans, data research, and deployment notes |
+| `admin/`, `landing/`, `shared/`, `infrastructure/` | Planning placeholders |
 
-## Implementation Roadmap
+## Development checks
 
-### Phase 1 (Current MVP)
+Run `npm run build` from `frontend/` to check the frontend production build. Backend syntax can be checked with `node --check src/index.js` from each backend folder. The backend manifests contain Jest commands, but no automated backend test suite is currently included.
 
-- Core user management
-- AIS tracking (basic)
-- Web interface
+See [ROADMAP.md](ROADMAP.md), [the implementation plan](docs/plan.md), and [product requirements](docs/product-requirements.md) for future work. Research documents may describe planned features or historical vendor information rather than implemented functionality.
 
-### Phase 2
+## Credentials and local data
 
-- Weather integration
-- Email management
-- Route planning
+Local `.env` files are ignored; commit only safe `.env.example` templates. Keep provider tokens, private keys, and real customer data out of code, configuration examples, logs, and Git history. Docker build contexts also exclude local environments and credentials.
 
-### Phase 3
+No live provider credentials are required for the current synthetic demo. `JWT_SECRET` is reserved for future authentication work; if enabling authentication, generate a new local secret rather than using example text. Do not put private credentials in frontend `NEXT_PUBLIC_` variables.
 
-- Cargo marketplace
-- Advanced routing
-- API for developers
+## License
 
-### Phase 4
-
-- Market intelligence
-- Advanced analytics
-- Multi-tenant deployments
-
-## Tech Stack
-
-- **Frontend**: Next.js, TypeScript, Tailwind CSS, Leaflet
-- **Backend**: Node.js, Express, MongoDB
-- **Infrastructure**: Docker, Nginx (future: Kubernetes)
-
-## Development
-
-This project is under active development. The current MVP demonstrates the AIS tracking functionality, which is the core module of the platform.
+Released under the [MIT License](LICENSE). Dependencies and third-party map data retain their own licenses and attribution requirements.
